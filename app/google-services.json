@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1075587665469",
+    "project_id": "listado-3e26e",
+    "storage_bucket": "listado-3e26e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1075587665469:android:d48b65622f188698286454",
+        "android_client_info": {
+          "package_name": "com.example.listado"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCooAByaa_JcbsWDg39U0VW1RwJUMFBd84"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

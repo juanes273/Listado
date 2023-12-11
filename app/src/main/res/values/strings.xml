@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Listado</string>
+    <string name="forgot_password_title">Recuperar contraseña</string>
+    <string name="email">email</string>
+    <string name="send_request">send request</string>
+    <string name="reset_password">Reset password</string>
+    <string name="email_screen_title">Email recovery password</string>
+    <string name="send_email">Email send</string>
+    <string name="verification_code">Verification code</string>
+    <string name="verify_code">Verify code</string>
+</resources>
