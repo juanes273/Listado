@@ -1,9 +1,13 @@
 package com.example.listado.screens.home
 
-import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
 import android.net.Uri
+import android.os.Build
+import android.provider.MediaStore
 import android.util.Log
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -11,21 +15,20 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.listado.R
-import com.github.kittinunf.fuel.core.extensions.jsonBody
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import com.github.kittinunf.fuel.httpPost
-import com.github.kittinunf.result.Result
 import org.json.JSONObject
 import java.util.Date
 import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageException
 import com.google.firebase.storage.StorageReference
 import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
+import java.io.IOException
 import java.util.UUID
 
 class ListadoViewModel : ViewModel() {
@@ -33,12 +36,19 @@ class ListadoViewModel : ViewModel() {
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
     var listName by mutableStateOf("Loading...")
     private var userDataMap by mutableStateOf<Map<String, String>>(emptyMap())
-    private val _imageUrl = MutableLiveData<String>()
-    val imageUrl: LiveData<String> get() = _imageUrl
+    private val _imageUrl = mutableStateOf<String?>(null)
+
+
+    val imageUrl: State<String?> get() = _imageUrl
 
 
     init {
         fetchData()
+    }
+
+    // Función para actualizar la URL de la imagen en el MutableState
+    private fun updateImageUrl(newImageUrl: String) {
+        _imageUrl.value = newImageUrl
     }
 
     // Cambia el nombre del método en tu ListadoViewModel
@@ -226,6 +236,45 @@ class ListadoViewModel : ViewModel() {
             }
         }
     }
+
+    // Inside your ListadoViewModel
+    fun uploadImage(context: Context, imageUri: Uri) {
+        val userId = auth.currentUser?.uid
+        if (userId != null) {
+            viewModelScope.launch(Dispatchers.IO) {
+                try {
+                    // Obtain a reference for the image in Firebase Storage
+                    val imageFileName = "$userId"
+                    val storageRef: StorageReference =
+                        FirebaseStorage.getInstance().getReference("images/$imageFileName")
+
+                    // Upload the image to Firebase Storage using putFile
+                    storageRef.putFile(imageUri).await()
+
+                    // Obtain the URL of the stored image
+                    val downloadUrl = storageRef.downloadUrl.await().toString()
+
+                    // Update the "imageUrl" field in Firestore with the image URL
+                    val updates = mapOf("imageUrl" to downloadUrl)
+                    updateUserData(updates)
+
+                    // Update the imageUrl in the viewModel
+                    updateImageUrl(downloadUrl)
+
+                    Log.d("ListadoViewModel", "Image uploaded successfully: $downloadUrl")
+                } catch (e: StorageException) {
+                    // Handle storage-related errors
+                    Log.e("ListadoViewModel", "Error uploading the image", e)
+                } catch (e: Exception) {
+                    // Handle other exceptions
+                    Log.e("ListadoViewModel", "Error uploading the image", e)
+                }
+            }
+        }
+    }
+
+
+
 
 
 

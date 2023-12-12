@@ -1,15 +1,21 @@
 package com.example.listado.screens.home
 
 import android.annotation.SuppressLint
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -18,6 +24,7 @@ import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
 import com.example.listado.R
 import com.example.listado.navigation.ListadoScreens
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import kotlinx.coroutines.Dispatchers
@@ -45,25 +52,79 @@ fun UserDataContent(navController: NavController) {
 
     val profileImageResId = R.drawable.pp // Reemplaza con tu recurso de imagen
     val painter = painterResource(id = profileImageResId)
+    val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    val userId = auth.currentUser?.uid
+
+    val storageReference: StorageReference = FirebaseStorage.getInstance().reference.child("images/$userId")
+    var imageUrl by remember { mutableStateOf<String?>(null) }
+
+    val context = LocalContext.current
+    // State to manage the selected image URI
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+
+    // Launch the intent to select an image
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        selectedImageUri = uri
+    }
+
+    // Inside YourComposable
+    DisposableEffect(selectedImageUri) {
+        if (selectedImageUri != null) {
+            viewModel.uploadImage(context, selectedImageUri!!)
+        }
+        onDispose {
+            // Clean up the state when the composable is disposed
+            selectedImageUri = null
+        }
+    }
+
+    // Función suspendida para obtener la URL de la imagen desde Firebase Storage
+    suspend fun getImageUrl(storageReference: StorageReference): String {
+        return withContext(Dispatchers.IO) {
+            try {
+                storageReference.downloadUrl.await().toString()
+            } catch (e: Exception) {
+                // Manejar errores según sea necesario
+                e.printStackTrace()
+                ""
+            }
+        }
+    }
+
+    // LaunchedEffect para cargar la imagen cuando cambia la referencia de almacenamiento
+    LaunchedEffect(storageReference,viewModel.imageUrl.value) {
+        imageUrl = getImageUrl(storageReference)
+    }
+
+    // LaunchedEffect para cargar la imagen cada vez que se reevalúa el compositor
+    LaunchedEffect(key1 = Unit) {
+        imageUrl = viewModel.imageUrl.value
+    }
+
 
     Surface(modifier = Modifier.fillMaxSize()) {
+        // Composable para mostrar la imagen de perfil
+        val imageModifier = Modifier
+            .size(100.dp)
+            .clip(shape = CircleShape)
+            .background(MaterialTheme.colorScheme.primary)
+            .padding(8.dp)
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top // Ajusta a la parte superior
+            verticalArrangement = Arrangement.Top
         ) {
-            // Agrega un Image composable para mostrar la imagen de perfil local
-            Image(
-                painter = painter,
-                contentDescription = null,
-                modifier = Modifier
-                    .size(100.dp)
-                    .clip(shape = CircleShape)
-                    .background(MaterialTheme.colorScheme.primary)
-                    .padding(8.dp)
-            )
+            // Utiliza Coil para cargar la imagen desde Firebase Storage
+            imageUrl?.let {
+                Image(
+                    painter = rememberImagePainter(it),
+                    contentDescription = null,
+                    modifier = imageModifier
+                )
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -76,6 +137,19 @@ fun UserDataContent(navController: NavController) {
             Text("Nombre: $userName")
             Text("Email: $userEmail")
             Text("Residencia: $userResidencia")
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Button to select an image
+            Button(
+                onClick = {
+                    // Launch the intent to select an image
+                    launcher.launch("image/*")
+                },
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Icon(imageVector = Icons.Default.Add, contentDescription = null)
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -293,6 +367,5 @@ fun UserDataContent(navController: NavController) {
             }
         }
     }
-
 
 }

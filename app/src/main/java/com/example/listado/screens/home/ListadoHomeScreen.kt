@@ -1,15 +1,23 @@
 package com.example.listado.screens.home
 
+import android.net.Uri
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
@@ -22,21 +30,21 @@ fun ListadoHomeScreen(navController: NavController) {
     val viewModel: ListadoViewModel = viewModel()
     val newObjectTextState = remember { mutableStateOf(TextFieldValue()) }
     val emailTextState = remember { mutableStateOf(TextFieldValue()) }
-    val context = LocalContext.current
+
 
     Column {
         Text(text = "Listado home screen")
         Text(text = "List Name: ${viewModel.listName}")
 
-        // Text field for entering the email
         BasicTextField(
-            value = emailTextState.value,
+            value = newObjectTextState.value,
             onValueChange = {
-                emailTextState.value = it
+                newObjectTextState.value = it
             },
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier
+                .padding(16.dp)
+                .border(1.dp, Color.Blue) // Añadir un borde azul
         )
-
         // Button to add the new object
         Button(
             onClick = {
@@ -50,20 +58,6 @@ fun ListadoHomeScreen(navController: NavController) {
             modifier = Modifier.padding(16.dp)
         ) {
             Text(text = "Agregar Objeto")
-        }
-
-        // Button to send the code by email
-        Button(
-            onClick = {
-                val newObject = newObjectTextState.value.text
-                val email = emailTextState.value.text
-
-                if (email.isNotEmpty()) {
-                }
-            },
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Text(text = "Enviar Código por Correo")
         }
 
         Button(
@@ -89,10 +83,4 @@ fun ListadoHomeScreen(navController: NavController) {
             Text(text = "Cerrar Sesión")
         }
     }
-}
-
-// Replace this with your actual code generation logic
-fun generateTemporaryCode(): String {
-    // Implement your code generation logic here (e.g., random alphanumeric code)
-    return "123456"
 }
