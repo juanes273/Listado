@@ -86,7 +86,7 @@ dependencies {
 
     // Iconos
     implementation("androidx.compose.material:material-icons-extended:1.5.4")
-    implementation("androidx.compose.material3:material3:1.0.0-beta01")
+    implementation("androidx.compose.material3:material3:1.0.1")
 
     //javamail
     implementation("com.sun.mail:android-mail:1.6.7")
@@ -112,6 +112,8 @@ dependencies {
     implementation ("com.google.firebase:firebase-storage:11.5.3")
 
     implementation("io.coil-kt:coil-compose:1.3.2")
+
+    implementation("androidx.compose.runtime:runtime-livedata:1.1.1")
 
 
 

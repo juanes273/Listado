@@ -30,6 +30,7 @@ import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.util.UUID
+import kotlin.math.log
 
 class ListadoViewModel : ViewModel() {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
@@ -37,13 +38,20 @@ class ListadoViewModel : ViewModel() {
     var listName by mutableStateOf("Loading...")
     private var userDataMap by mutableStateOf<Map<String, String>>(emptyMap())
     private val _imageUrl = mutableStateOf<String?>(null)
-
-
+    private val _objectList = MutableLiveData<List<String>>()
+    val objectList: LiveData<List<String>> get() = _objectList
     val imageUrl: State<String?> get() = _imageUrl
+
+    private val _listNames = MutableLiveData<List<String>>()
+    val listNames: LiveData<List<String>> get() = _listNames
+
+    private var selectedListName by mutableStateOf<String?>(null)
 
 
     init {
         fetchData()
+        fetchObjectLists()
+        fetchObjectList()
     }
 
     // Función para actualizar la URL de la imagen en el MutableState
@@ -88,12 +96,75 @@ class ListadoViewModel : ViewModel() {
         }
     }
 
+    fun fetchObjectList() {
+        val userId = auth.currentUser?.uid
+        viewModelScope.launch(Dispatchers.IO) {
+            if (userId != null) {
+                try {
+                    val querySnapshot = db.collection("lists")
+                        .whereEqualTo("user_id", userId)
+                        .get()
+                        .await()
+
+                    if (!querySnapshot.isEmpty) {
+                        val document: DocumentSnapshot? = querySnapshot.documents[0]
+                        if (document != null) {
+                            // Obtén la lista de objetos desde el documento
+                            val objectList = document.get("objects") as? List<String>
+
+                            // Actualiza el LiveData con la lista de objetos
+                            withContext(Dispatchers.Main) {
+                                _objectList.value = objectList ?: emptyList()
+                            }
+                        }
+                    } else {
+                        // No se encontraron documentos para el usuario
+                        Log.e("ListadoViewModel", "No se encontraron documentos para el usuario con ID: $userId")
+                    }
+                } catch (e: Exception) {
+                    // Manejar errores
+                    Log.e("ListadoViewModel", "Error al obtener la lista de objetos del usuario", e)
+                }
+            }
+        }
+    }
+
+    fun fetchObjectLists() {
+        val userId = auth.currentUser?.uid
+        viewModelScope.launch(Dispatchers.IO) {
+            if (userId != null) {
+                try {
+                    val querySnapshot = db.collection("lists")
+                        .whereEqualTo("user_id", userId)
+                        .get()
+                        .await()
+
+                    if (!querySnapshot.isEmpty) {
+                        val listNames = querySnapshot.documents.map { it.getString("list_name") ?: "" }
+                        withContext(Dispatchers.Main) {
+                            _listNames.value = listNames
+                            Log.e("ListadoViewModel", "listas: $listNames")
+                        }
+                    } else {
+                        // No se encontraron listas para el usuario
+                        Log.e("ListadoViewModel", "No se encontraron listas para el usuario con ID: $userId")
+                    }
+                } catch (e: Exception) {
+                    // Manejar errores
+                    Log.e("ListadoViewModel", "Error al obtener la lista de listas del usuario", e)
+                }
+            }
+        }
+    }
+
+
+
     fun addObjectToList(newObject: String) {
         val userId = auth.currentUser?.uid
         if (userId != null) {
             viewModelScope.launch(Dispatchers.IO) {
                 try {
-                    val querySnapshot = db.collection("users")
+                    val querySnapshot = db.collection("lists")
                         .whereEqualTo("user_id", userId)
                         .get()
                         .await()
@@ -111,11 +182,16 @@ class ListadoViewModel : ViewModel() {
                             // Actualiza el documento con el nuevo mapa
                             document.reference.update(updatedData)
 
-                            Log.d("ListadoViewModel", "Objeto agregado exitosamente a la base de datos: $newObject")
-
                             // Imprime el primer valor de la lista después de la actualización
                             val firstValue = currentObjects?.firstOrNull()
                             Log.d("ListadoViewModel", "Primer valor de la lista después de la actualización: $firstValue")
+
+                            // Actualiza el LiveData con la lista de objetos
+                            withContext(Dispatchers.Main) {
+                                _objectList.value = currentObjects ?: emptyList()
+                            }
+
+                            Log.d("ListadoViewModel", "Objeto agregado exitosamente a la base de datos: $newObject")
                         }
                     } else {
                         Log.e("ListadoViewModel", "No se encontraron documentos para el usuario con ID: $userId")
