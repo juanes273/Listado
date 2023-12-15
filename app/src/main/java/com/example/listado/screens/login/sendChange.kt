@@ -67,7 +67,6 @@ fun VerifyCodeContent(
 ) {
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = Color.White
     ) {
         Column(
             modifier = Modifier
@@ -78,7 +77,6 @@ fun VerifyCodeContent(
                 title = {
                     Text(
                         text = stringResource(id = R.string.verification_code),
-                        color = Color.Black
                     )
                 },
                 navigationIcon = {

@@ -148,7 +148,7 @@ fun UserDataContent(navController: NavController) {
                 },
                 modifier = Modifier.padding(16.dp)
             ) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = null)
+                Text("Actualizar foto de perfil")
             }
 
             Spacer(modifier = Modifier.height(16.dp))

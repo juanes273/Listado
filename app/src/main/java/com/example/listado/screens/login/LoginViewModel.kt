@@ -2,29 +2,23 @@ package com.example.listado.screens.login
 
 import android.content.Context
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.listado.model.User
-import com.example.listado.navigation.ListadoScreens
+import com.example.listado.model.ListL
 import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.result.Result
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
 import java.util.Date
-import com.google.firebase.Timestamp
 import kotlinx.coroutines.coroutineScope
 import java.util.Calendar
 import java.text.SimpleDateFormat
@@ -81,8 +75,7 @@ class LoginViewModel : ViewModel() {
         val user = User(
             userId = userId.toString(),
             displayName = displayName.toString(),
-            listName = "Lista uno",
-            prioridad = "media",
+            prioridad = "A definir",
             id = null
         ).toMap()
 
@@ -291,7 +284,7 @@ class LoginViewModel : ViewModel() {
             "apikey" to apiKey,
             "subject" to "Código de Verificación",
             "from" to "brandjuan72@gmail.com",
-            "fromName" to "Juanes",
+            "fromName" to "List-a-do",
             "to" to email,
             "bodyHtml" to "<p>Tu código de verificación es: $codigo</p>",
             // Agrega otros parámetros según sea necesario

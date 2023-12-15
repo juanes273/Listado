@@ -36,8 +36,7 @@ fun ForgotPasswordScreen(
     var email by remember { mutableStateOf("") }
 
     Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = Color.White
+        modifier = Modifier.fillMaxSize()
     ) {
         Column(
             modifier = Modifier
@@ -47,9 +46,7 @@ fun ForgotPasswordScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = stringResource(id = R.string.forgot_password_title),
-                        color = Color.Black
-                    )
+                        text = stringResource(id = R.string.forgot_password_title),)
                 },
                 navigationIcon = {
                     IconButton(
