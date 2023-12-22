@@ -65,18 +65,23 @@ fun UserDataContent(navController: NavController) {
     // Launch the intent to select an image
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         selectedImageUri = uri
+        println("Selected Image URI: $uri")
     }
 
     // Inside YourComposable
     DisposableEffect(selectedImageUri) {
+        println("Selected Image URI changed: $selectedImageUri")
+
         if (selectedImageUri != null) {
             viewModel.uploadImage(context, selectedImageUri!!)
         }
+
         onDispose {
             // Clean up the state when the composable is disposed
-            selectedImageUri = null
+            selectedImageUri = selectedImageUri
         }
     }
+
 
     // Función suspendida para obtener la URL de la imagen desde Firebase Storage
     suspend fun getImageUrl(storageReference: StorageReference): String {

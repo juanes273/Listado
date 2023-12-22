@@ -379,7 +379,7 @@ fun ListadoHomeScreen(navController: NavController) {
                 onClick = {
                     navController.navigate(ListadoScreens.UserDataContent.name)
                 },
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier.padding(3.dp)
             ) {
                 Text("Ver Datos")
             }
@@ -389,7 +389,7 @@ fun ListadoHomeScreen(navController: NavController) {
                     viewModel.signOut()
                     navController.navigate(ListadoScreens.LoginScreen.name)
                 },
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier.padding(3.dp)
                     .width(200.dp)
             ) {
                 Text(text = "Cerrar Sesión")
