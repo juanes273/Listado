@@ -157,7 +157,7 @@ fun UserDataContent(navController: NavController) {
                 onClick = { showDialogDisplayName = true },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Actualizar Display Name")
+                Text("Actualizar Nombre")
             }
 
             if (showDialogDisplayName) {

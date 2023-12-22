@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
@@ -302,27 +304,44 @@ fun ListadoHomeScreen(navController: NavController) {
             modifier = Modifier
                 .padding(vertical = 2.dp, horizontal = 16.dp)
                 .height(250.dp)
-        ){
+        ) {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 2.dp, horizontal = 16.dp)
             ) {
                 if (objectList != null && objectList.isNotEmpty()) {
+                    item {
+                        // Encabezado de la tabla
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp, horizontal = 3.dp)
+                        ) {
+                            Text(text = "Producto")
+                            Spacer(modifier = Modifier.weight(1f))
+                            Text(text = "Acciones")
+                        }
+                    }
+
                     items(objectList) { item ->
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 2.dp, horizontal = 32.dp)
+                                .padding(vertical = 2.dp, horizontal = 3.dp)
                         ) {
+                            // Columna de objeto
                             Text(text = item)
 
+                            Spacer(modifier = Modifier.weight(1f)) // Espacio flexible
+
+                            // Columna de acciones
                             Button(
                                 onClick = {
                                     viewModel.deleteObjectFromList(item, selectedText)
                                     shouldFetchList = true
                                 },
-                                modifier = Modifier.padding(vertical = 2.dp, horizontal = 16.dp)
+                                modifier = Modifier.padding(horizontal = 3.dp)
                             ) {
                                 Text("Borrar")
                             }
@@ -331,7 +350,7 @@ fun ListadoHomeScreen(navController: NavController) {
                 } else {
                     item {
                         Text(
-                            text = "La lista de objetos está vacía o es nula",
+                            text = "La lista de productos está vacía",
                             modifier = Modifier
                                 .fillMaxWidth()
                         )
@@ -339,6 +358,8 @@ fun ListadoHomeScreen(navController: NavController) {
                 }
             }
         }
+
+
 
         LaunchedEffect(shouldFetchObjects) {
             if (shouldFetchObjects) {
@@ -351,7 +372,7 @@ fun ListadoHomeScreen(navController: NavController) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(5.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Button(

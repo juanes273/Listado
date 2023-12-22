@@ -75,7 +75,8 @@ class LoginViewModel : ViewModel() {
         val user = User(
             userId = userId.toString(),
             displayName = displayName.toString(),
-            prioridad = "A definir",
+            residencia = "A definir",
+            email = displayName.toString(),
             id = null
         ).toMap()
 
